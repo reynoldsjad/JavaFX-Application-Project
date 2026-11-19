@@ -1,0 +1,62 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class ItemCondition {
+  + EXCELLENT
+  + GOOD
+  + NEEDS_REPAIR
+}
+
+class InventoryService {
+  - items : List<EquipmentItem>
+  - borrowers : List<Borrower>
+  - records : List<CheckoutRecord>
+  + addItem(item : EquipmentItem) : void
+  + registerBorrower(borrower : Borrower) : void
+  + checkoutItem(itemId : String, borrowerId : String, dueDate : LocalDate) : CheckoutRecord
+  + returnItem(itemId : String, returnDate : LocalDate) : void
+  + hasOverdueItems(borrowerId : String, currentDate : LocalDate) : boolean
+  + getAvailableItems() : List<EquipmentItem>
+  + getOverdueRecords(currentDate : LocalDate) : List<CheckoutRecord>
+  + searchItems(keyword : String) : List<EquipmentItem>
+}
+
+class EquipmentItem {
+  - itemId : String
+  - name : String
+  - category : String
+  - condition : ItemCondition
+  - available : boolean
+  + canBeCheckedOut() : boolean
+  + markCheckedOut() : void
+  + markReturned() : void
+  + isAvailable() : boolean
+}
+
+class Borrower {
+  - borrowerId : String
+  - fullName : String
+  - email : String
+  - maxAllowedItems : int
+  + canBorrowMore(currentActiveCount : int) : boolean
+}
+
+class CheckoutRecord {
+  - recordId : String
+  - item : EquipmentItem
+  - borrower : Borrower
+  - checkoutDate : LocalDate
+  - dueDate : LocalDate
+  - returnDate : LocalDate
+  + isOverdue(currentDate : LocalDate) : boolean
+  + getDaysOverdue(currentDate : LocalDate) : long
+  + closeRecord(returnDate : LocalDate) : void
+}
+
+InventoryService "1" o-- "*" EquipmentItem : manages >
+InventoryService "1" o-- "*" Borrower : tracks >
+InventoryService "1" *-- "*" CheckoutRecord : records >
+EquipmentItem "*" --> "1" ItemCondition : has condition >
+CheckoutRecord "*" --> "1" EquipmentItem : references >
+CheckoutRecord "*" --> "1" Borrower : assigned to >
+@enduml
